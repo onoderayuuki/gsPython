@@ -1,0 +1,97 @@
+
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Jan 27 11:30:12 2017
+
+@author: khsk
+"""
+#%%
+import numpy as np
+import cv2 as c
+import glob
+import os
+#%%
+
+# 8近傍の定義
+neiborhood8 = np.array([[1, 1, 1],
+                            [1, 1, 1],
+                            [1, 1, 1]],
+                            np.uint8)
+
+# for path in glob.glob('./test.png'):
+#     if (os.path.basename(path) == 'Thumbs.db'):
+#         continue
+path = './test.png'
+#%%
+img = c.imread(path, 0) # 0なしでカラー
+c.imshow('test',img)
+#%%
+img_dilate = c.dilate(img, neiborhood8, iterations=1)
+img_diff = c.absdiff(img, img_dilate)
+img_diff_not = c.bitwise_not(img_diff)
+# c.imshow('test2',img_dilate)
+# c.imshow('test3',img_diff)
+# c.imshow('test4',img_diff_not)
+
+#%%
+gray = c.cvtColor(img_diff_not, c.COLOR_RGB2GRAY)
+c.imshow('gray',gray)
+
+#%%
+#at = c.adaptiveThreshold(img_diff_not, 255, c.ADAPTIVE_THRESH_GAUSSIAN_C, c.THRESH_BINARY, 7, 8) # intをいい感じに調整する
+c.imwrite( './_clean_senga_color_gray/' + os.path.basename(path), img_diff_not)
+
+
+
+#%%
+c.waitKey(1000)
+c.destroyAllWindows()
+
+# %%
+# https://torimakujoukyou.com/opencv-canny/
+import cv2
+img = cv2.imread('./test.png')
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+edges = cv2.Canny(gray, 50, 100)
+# %%
+cv2.imwrite('./test2.png', edges)
+cv2.imshow('./test2.png',edges)
+
+
+# %%
+# https://gadgelaun.com/?p=25144
+gray = cv2.imread('./test.png', cv2.IMREAD_GRAYSCALE)
+
+neiborhood24 = np.array([[1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1]],
+  np.uint8
+)
+dilated = cv2.dilate(gray, neiborhood24, iterations=1)
+diff = cv2.absdiff(dilated, gray)
+contour = 255 - diff
+cv2.imwrite("./test3.jpg", contour)
+# %%
+dilated2 = cv2.dilate(gray, neiborhood24, iterations=1)
+diff2= cv2.absdiff(dilated2, gray)
+contour2 = 255 - diff2
+cv2.imwrite("./test3.jpg", contour)
+# %%
+#https://www.learning-nao.com/?p=1868
+# ガウシアンぼかし
+img_blur = cv2.GaussianBlur(gray, (3,3), 0)
+
+cv2.imwrite("./img_blur.jpg", img_blur)
+# %%
+LapEdges = cv2.Laplacian(img_blur, cv2.CV_32F, ksize=1)
+cv2.imwrite('Laplacian Edge Detection.png', LapEdges)
+
+# %%
+edges = cv2.Canny(image=img_blur, threshold1=180, threshold2=200)
+cv2.imwrite('Canny Edge Detection.png', edges)
+# %%
+bitwise = cv2.bitwise_not(edges)
+cv2.imwrite('Cannybitwise.png', bitwise)
+# %%
